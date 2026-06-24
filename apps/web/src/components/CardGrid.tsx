@@ -1,4 +1,4 @@
-import type { CardSummary } from "@sorcery/types";
+import type { CardSummary } from "@omphalos/cards";
 import { CardThumb } from "./CardThumb";
 
 interface Props {

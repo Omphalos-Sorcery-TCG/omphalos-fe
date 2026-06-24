@@ -15,7 +15,7 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "paths": {
-      "@sorcery/types": ["./packages/types/src/index.ts"]
+      "@omphalos/cards": ["../omphalos-cards/src/index.ts"]
     }
   }
 }

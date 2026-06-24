@@ -8,9 +8,10 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      // Consume the shared types package directly from source (no build step).
-      "@sorcery/types": fileURLToPath(
-        new URL("../../packages/types/src/index.ts", import.meta.url),
+      // Consume the shared @omphalos/cards package directly from source in the
+      // sibling repo (no build step) while iterating locally.
+      "@omphalos/cards": fileURLToPath(
+        new URL("../../../omphalos-cards/src/index.ts", import.meta.url),
       ),
     },
   },

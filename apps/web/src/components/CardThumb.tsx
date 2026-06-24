@@ -1,6 +1,6 @@
 import { memo } from "react";
-import type { CardSummary } from "@sorcery/types";
-import { imageUrl } from "@sorcery/types";
+import type { CardSummary } from "@omphalos/cards";
+import { imageUrl } from "@omphalos/cards";
 
 interface Props {
   card: CardSummary;

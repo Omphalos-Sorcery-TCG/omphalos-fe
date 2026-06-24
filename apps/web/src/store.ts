@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Card, CardSummary } from "@sorcery/types";
+import type { Card, CardSummary } from "@omphalos/cards";
 import { emptyFilters, type Filters, loadCardDetail, loadIndex } from "./lib/cards";
 
 type Status = "idle" | "loading" | "ready" | "error";

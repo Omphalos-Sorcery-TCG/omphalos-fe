@@ -1,46 +1,16 @@
-import type { Card, CardSummary } from "@sorcery/types";
-import { splitList } from "@sorcery/types";
+import type { CardSummary } from "@omphalos/cards";
+import { createCardClient, splitList } from "@omphalos/cards";
 
-/** Fetch the lightweight card index (one summary per card) from public/index.json. */
-export async function loadIndex(): Promise<CardSummary[]> {
-  const res = await fetch("/index.json");
-  if (!res.ok) {
-    throw new Error(`Failed to load index.json (${res.status})`);
-  }
-  return (await res.json()) as CardSummary[];
-}
+// Data is served same-origin from /public (index.json, chunks/) unless
+// VITE_CARDS_BASE_URL points at another origin (e.g. a CDN).
+const client = createCardClient({
+  baseUrl: import.meta.env.VITE_CARDS_BASE_URL ?? "",
+});
 
-// Detail chunks are fetched on demand and cached so repeat opens are free.
-const chunkCache = new Map<number, Promise<Card[]>>();
-
-function loadChunk(chunk: number): Promise<Card[]> {
-  let pending = chunkCache.get(chunk);
-  if (!pending) {
-    pending = fetch(`/chunks/cards-${chunk}.json`)
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`Failed to load chunk ${chunk} (${res.status})`);
-        }
-        return res.json() as Promise<Card[]>;
-      })
-      .catch((err) => {
-        chunkCache.delete(chunk); // don't cache a failed fetch
-        throw err;
-      });
-    chunkCache.set(chunk, pending);
-  }
-  return pending;
-}
-
+/** Fetch the lightweight card index (one summary per card). */
+export const loadIndex = client.loadIndex;
 /** Fetch the full card for a summary, loading (and caching) its detail chunk. */
-export async function loadCardDetail(summary: CardSummary): Promise<Card> {
-  const chunk = await loadChunk(summary.chunk);
-  const card = chunk.find((c) => c.name === summary.name);
-  if (!card) {
-    throw new Error(`Card "${summary.name}" missing from chunk ${summary.chunk}`);
-  }
-  return card;
-}
+export const loadCardDetail = client.loadCardDetail;
 
 /** The single elements present across all cards (split from multi-element strings). */
 export const ELEMENT_ORDER = ["Air", "Earth", "Fire", "Water"] as const;

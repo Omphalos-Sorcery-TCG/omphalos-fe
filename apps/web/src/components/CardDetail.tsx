@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import type { Card, StatBlock } from "@sorcery/types";
-import { imageUrl, printings, sectionForType, splitList } from "@sorcery/types";
+import type { Card, StatBlock } from "@omphalos/cards";
+import { imageUrl, printings, sectionForType, splitList } from "@omphalos/cards";
 import { useDecks } from "../decks";
 
 const ELEMENTS = ["Air", "Earth", "Fire", "Water"] as const;

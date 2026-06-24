@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Deck, DeckSection } from "@sorcery/types";
+import type { Deck, DeckSection } from "@omphalos/cards";
 import { supabase } from "./lib/supabase";
 import { useAuth } from "./auth";
 

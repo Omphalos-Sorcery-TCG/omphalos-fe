@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
-import type { CardMeta, DeckSection } from "@sorcery/types";
-import { imageUrl, MIN_ATLAS, MIN_SPELLBOOK, validateDeck } from "@sorcery/types";
+import type { CardMeta, DeckSection } from "@omphalos/cards";
+import { imageUrl, MIN_ATLAS, MIN_SPELLBOOK, validateDeck } from "@omphalos/cards";
 import { useStore } from "../store";
 import { useDecks } from "../decks";
 
