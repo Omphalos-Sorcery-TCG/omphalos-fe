@@ -1,0 +1,18 @@
+{
+  "name": "sorcery-omphalos",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A web app to play Sorcery: Contested Realm",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "predev": "node scripts/split-cards.mjs",
+    "dev": "npm run dev --workspace apps/web",
+    "build": "npm run cards:split && npm run build --workspace apps/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "cards:download": "python scripts/download_cards.py",
+    "cards:split": "node scripts/split-cards.mjs"
+  }
+}

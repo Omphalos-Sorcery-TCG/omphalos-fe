@@ -1,0 +1,45 @@
+# --- Generated card assets (regenerate with scripts/download_cards.py) ---
+# 3.3 GB of card images + the API snapshot. Source of truth is the downloader.
+/public/cards/
+/public/cards.json
+/scripts/download_failures.txt
+
+# Derived from cards.json by scripts/split-cards.mjs (npm run cards:split).
+/public/index.json
+/public/chunks/
+
+# --- Dependencies ---
+node_modules/
+.pnp
+.pnp.js
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# --- Build output ---
+dist/
+build/
+.next/
+out/
+
+# --- Env & secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Reference docs (not needed in the repo) ---
+/SorceryRulebook.pdf
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
