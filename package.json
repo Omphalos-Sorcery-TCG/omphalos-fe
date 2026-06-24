@@ -11,7 +11,7 @@
     "dev": "npm run dev --workspace apps/web",
     "build": "npm run cards:split && npm run build --workspace apps/web",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "cards:download": "python node_modules/@omphalos/cards/scripts/download_cards.py public",
-    "cards:split": "node node_modules/@omphalos/cards/scripts/split-cards.mjs public"
+    "cards:download": "python node_modules/@omphalos-sorcery-tcg/cards/scripts/download_cards.py public",
+    "cards:split": "node node_modules/@omphalos-sorcery-tcg/cards/scripts/split-cards.mjs public"
   }
 }

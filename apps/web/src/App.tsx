@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { CardSummary } from "@omphalos/cards";
-import { sectionForType } from "@omphalos/cards";
+import type { CardSummary } from "@omphalos-sorcery-tcg/cards";
+import { sectionForType } from "@omphalos-sorcery-tcg/cards";
 import { useStore } from "./store";
 import { useAuth } from "./auth";
 import { useDecks } from "./decks";

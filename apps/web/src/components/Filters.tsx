@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { CardSummary } from "@omphalos/cards";
+import type { CardSummary } from "@omphalos-sorcery-tcg/cards";
 import { useStore } from "../store";
 import { ELEMENT_ORDER, setNames, TYPE_ORDER } from "../lib/cards";
 

@@ -13,9 +13,6 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-    "paths": {
-      "@omphalos/cards": ["../omphalos-cards/src/index.ts"]
-    }
+    "verbatimModuleSyntax": true
   }
 }

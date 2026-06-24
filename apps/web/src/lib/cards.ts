@@ -1,5 +1,5 @@
-import type { CardSummary } from "@omphalos/cards";
-import { createCardClient, splitList } from "@omphalos/cards";
+import type { CardSummary } from "@omphalos-sorcery-tcg/cards";
+import { createCardClient, splitList } from "@omphalos-sorcery-tcg/cards";
 
 // Data is served same-origin from /public (index.json, chunks/) unless
 // VITE_CARDS_BASE_URL points at another origin (e.g. a CDN).
