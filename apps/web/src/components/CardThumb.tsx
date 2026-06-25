@@ -22,7 +22,9 @@ function CardThumbImpl({
   const title = building ? `Add ${card.name}` : card.name;
   return (
     <button
-      className={`thumb${building ? " build" : ""}`}
+      className={`thumb${building ? " build" : ""}${
+        card.type === "Site" ? " site" : ""
+      }`}
       onClick={() => onSelect(card)}
       title={title}
     >

@@ -5,6 +5,8 @@ import { useStore } from "./store";
 import { useAuth } from "./auth";
 import { useDecks } from "./decks";
 import { filterCards } from "./lib/cards";
+import { navigate, useLocation } from "./router";
+import { Home } from "./components/Home";
 import { SearchBar } from "./components/SearchBar";
 import { Filters } from "./components/Filters";
 import { CardGrid } from "./components/CardGrid";
@@ -17,20 +19,63 @@ import { DeckPanel } from "./components/DeckPanel";
 const PAGE_SIZE = 60;
 
 export function App() {
-  const { cards, status, error, filters, selected, detailStatus, detailError, load, select } =
-    useStore();
-  const user = useAuth((s) => s.user);
+  const loc = useLocation();
+  const path = new URL(loc, window.location.origin).pathname;
+  const load = useStore((s) => s.load);
   const initAuth = useAuth((s) => s.init);
+
+  // Load card data + resolve the auth session once, up front, so navigating to
+  // the results page is instant.
+  useEffect(() => {
+    void load();
+    initAuth();
+  }, [load, initAuth]);
+
+  return path === "/" ? <Home /> : <Browser />;
+}
+
+/** The search-results / browse page: top bar, filters, card grid, deck builder. */
+function Browser() {
+  const { cards, status, error, filters, selected, detailStatus, detailError, select } =
+    useStore();
+  const setSearch = useStore((s) => s.setSearch);
+  const user = useAuth((s) => s.user);
   const activeDeck = useDecks((s) => s.active);
   const addCard = useDecks((s) => s.addCard);
   const setAvatar = useDecks((s) => s.setAvatar);
   const [page, setPage] = useState(1);
   const [decksOpen, setDecksOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const contentRef = useRef<HTMLElement>(null);
 
   // "Build mode": a deck is open, so clicking a card adds it instead of
   // opening its detail view.
   const building = !!activeDeck;
+
+  // Number of active filter facets, surfaced on the mobile Filters button.
+  const activeFilterCount =
+    filters.types.size + filters.elements.size + filters.sets.size;
+
+  // Seed the search from the URL's ?q= when the results page first opens.
+  useEffect(() => {
+    const q = new URL(window.location.href).searchParams.get("q") ?? "";
+    if (q) setSearch(q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Keep the URL in sync with the live search so results stay shareable.
+  // Skip the first run so we don't clobber the ?q= we just seeded above.
+  const firstSync = useRef(true);
+  useEffect(() => {
+    if (firstSync.current) {
+      firstSync.current = false;
+      return;
+    }
+    navigate(
+      filters.search ? `/search?q=${encodeURIComponent(filters.search)}` : "/search",
+      { replace: true },
+    );
+  }, [filters.search]);
 
   const quantityByName = useMemo(() => {
     const map = new Map<string, number>();
@@ -53,11 +98,6 @@ export function App() {
     },
     [building, select, setAvatar, addCard],
   );
-
-  useEffect(() => {
-    void load();
-    initAuth();
-  }, [load, initAuth]);
 
   const visible = useMemo(
     () => filterCards(cards, filters),
@@ -84,9 +124,23 @@ export function App() {
   return (
     <div className={`app${building ? " building" : ""}`}>
       <header className="topbar">
-        <div className="brand">
+        <button
+          className="icon-btn filters-toggle"
+          onClick={() => setFiltersOpen(true)}
+          aria-label="Open filters"
+        >
+          ☰
+          {activeFilterCount > 0 && (
+            <span className="dot">{activeFilterCount}</span>
+          )}
+        </button>
+        <button
+          className="brand brand-link"
+          onClick={() => navigate("/")}
+          aria-label="Home"
+        >
           Omphalos<span className="brand-sub">Sorcery TCG</span>
-        </div>
+        </button>
         <SearchBar />
         <div className="count">
           {status === "ready" ? `${visible.length} / ${cards.length}` : ""}
@@ -98,8 +152,8 @@ export function App() {
       </header>
 
       <div className="body">
-        <aside className="sidebar">
-          <Filters cards={cards} />
+        <aside className={`sidebar${filtersOpen ? " open" : ""}`}>
+          <Filters cards={cards} count={visible.length} />
         </aside>
 
         <main className="content" ref={contentRef}>
@@ -122,7 +176,7 @@ export function App() {
             <p className="state error">Failed to load cards: {error}</p>
           )}
           {status === "ready" && visible.length === 0 && (
-            <p className="state">No cards match your filters.</p>
+            <p className="state">No cards match your search.</p>
           )}
           {status === "ready" && visible.length > 0 && (
             <>
@@ -143,6 +197,16 @@ export function App() {
         </main>
 
         {decksOpen && user && <DeckPanel onClose={() => setDecksOpen(false)} />}
+
+        {(filtersOpen || (decksOpen && user)) && (
+          <div
+            className="scrim"
+            onClick={() => {
+              setFiltersOpen(false);
+              setDecksOpen(false);
+            }}
+          />
+        )}
       </div>
 
       {selected && detailStatus === "ready" && (

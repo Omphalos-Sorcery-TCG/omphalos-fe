@@ -31,7 +31,13 @@ function FacetGroup({ title, facet, options }: FacetGroupProps) {
   );
 }
 
-export function Filters({ cards }: { cards: CardSummary[] }) {
+export function Filters({
+  cards,
+  count,
+}: {
+  cards: CardSummary[];
+  count: number;
+}) {
   const clear = useStore((s) => s.clearFilters);
   const sets = useMemo(() => setNames(cards), [cards]);
 
@@ -43,6 +49,9 @@ export function Filters({ cards }: { cards: CardSummary[] }) {
           Clear
         </button>
       </div>
+      <p className="filters-count muted small">
+        {count} of {cards.length} cards
+      </p>
       <FacetGroup title="Type" facet="types" options={[...TYPE_ORDER]} />
       <FacetGroup title="Element" facet="elements" options={[...ELEMENT_ORDER]} />
       <FacetGroup title="Set" facet="sets" options={sets} />

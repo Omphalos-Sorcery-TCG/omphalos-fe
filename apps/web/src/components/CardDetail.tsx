@@ -56,7 +56,10 @@ export function CardDetail({ card, onClose }: { card: Card; onClose: () => void 
 
   return (
     <div className="overlay" onClick={onClose}>
-      <div className="detail" onClick={(e) => e.stopPropagation()}>
+      <div
+        className={`detail${card.guardian.type === "Site" ? " site" : ""}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <button className="close" onClick={onClose} aria-label="Close">
           ×
         </button>
