@@ -12,5 +12,8 @@ export default defineConfig({
   server: {
     port: 5173,
     open: false,
+    // Permit the ngrok tunnel host to reach the dev server (Vite blocks
+    // unknown Host headers by default).
+    allowedHosts: ["telco.ngrok.app"],
   },
 });
