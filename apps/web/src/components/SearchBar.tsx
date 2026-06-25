@@ -8,7 +8,7 @@ export function SearchBar() {
     <input
       className="search"
       type="search"
-      placeholder="Search cards by name…"
+      placeholder="Search — name, type:site, set:alpha…"
       value={search}
       onChange={(e) => setSearch(e.target.value)}
       autoComplete="off"

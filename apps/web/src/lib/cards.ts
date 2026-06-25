@@ -49,17 +49,106 @@ export function emptyFilters(): Filters {
   return { search: "", types: new Set(), elements: new Set(), sets: new Set() };
 }
 
-/** Apply the active filters to the full card list. */
+/**
+ * A parsed advanced-search query. Free-text terms match the card name (every
+ * term must appear — AND); field qualifiers match their field and OR within a
+ * field, AND across fields.
+ */
+export interface ParsedQuery {
+  names: string[];
+  types: string[];
+  sets: string[];
+  elements: string[];
+  rarities: string[];
+}
+
+type QueryField = Exclude<keyof ParsedQuery, "names">;
+
+// Qualifier keywords (with short aliases) → which bucket they fill.
+const FIELD_ALIASES: Record<string, QueryField> = {
+  type: "types",
+  t: "types",
+  set: "sets",
+  s: "sets",
+  element: "elements",
+  e: "elements",
+  el: "elements",
+  rarity: "rarities",
+  r: "rarities",
+};
+
+/**
+ * Parse a search string into structured constraints. Supports `field:value`
+ * (a space after the colon is allowed, e.g. "type: site"), quoted values
+ * (`set:"flux"`), and bare/quoted free-text name terms. Unknown fields fall
+ * back to a name term so nothing is silently dropped.
+ */
+export function parseQuery(input: string): ParsedQuery {
+  const q: ParsedQuery = {
+    names: [],
+    types: [],
+    sets: [],
+    elements: [],
+    rarities: [],
+  };
+  // Collapse "field: value" → "field:value" so the value isn't read as a name.
+  const normalized = input.replace(/([a-z]+):\s+/gi, "$1:");
+  const token = /(\w+):(?:"([^"]*)"|(\S*))|"([^"]*)"|(\S+)/g;
+
+  for (let m = token.exec(normalized); m; m = token.exec(normalized)) {
+    const [, field, quotedVal, bareVal, quotedTerm, bareTerm] = m;
+    if (field) {
+      const value = (quotedVal ?? bareVal ?? "").trim().toLowerCase();
+      if (!value) continue;
+      const bucket = FIELD_ALIASES[field.toLowerCase()];
+      if (bucket) q[bucket].push(value);
+      else q.names.push(value);
+    } else {
+      const term = (quotedTerm ?? bareTerm ?? "").trim().toLowerCase();
+      if (term) q.names.push(term);
+    }
+  }
+  return q;
+}
+
+/** Apply the sidebar chip facets and the parsed search query to the card list. */
 export function filterCards(cards: CardSummary[], f: Filters): CardSummary[] {
-  const q = f.search.trim().toLowerCase();
+  const pq = parseQuery(f.search);
   return cards.filter((card) => {
-    if (q && !card.name.toLowerCase().includes(q)) return false;
+    // Sidebar chip facets.
     if (f.types.size && !f.types.has(card.type)) return false;
     if (f.sets.size && !card.sets.some((s) => f.sets.has(s.name))) return false;
     if (f.elements.size) {
       const els = splitList(card.elements);
       if (!els.some((e) => f.elements.has(e))) return false;
     }
+
+    // Free-text name terms — every term must appear in the name.
+    if (pq.names.length) {
+      const name = card.name.toLowerCase();
+      if (!pq.names.every((t) => name.includes(t))) return false;
+    }
+    // type: — prefix-friendly so "type:min" matches Minion.
+    if (pq.types.length) {
+      const ct = card.type.toLowerCase();
+      if (!pq.types.some((v) => ct === v || ct.startsWith(v))) return false;
+    }
+    // set: — match any set the card appears in.
+    if (pq.sets.length) {
+      const setNamesLc = card.sets.map((s) => s.name.toLowerCase());
+      if (!pq.sets.some((v) => setNamesLc.some((n) => n.includes(v)))) return false;
+    }
+    // element: — match any of the card's elements.
+    if (pq.elements.length) {
+      const els = splitList(card.elements).map((e) => e.toLowerCase());
+      if (!pq.elements.some((v) => els.some((e) => e.includes(v)))) return false;
+    }
+    // rarity: — prefix-friendly.
+    if (pq.rarities.length) {
+      const r = (card.rarity ?? "").toLowerCase();
+      if (!pq.rarities.some((v) => r === v || r.startsWith(v))) return false;
+    }
+
     return true;
   });
 }
